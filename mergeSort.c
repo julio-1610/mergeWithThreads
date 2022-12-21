@@ -1,6 +1,8 @@
 // C program for Merge Sort
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <pthread.h>
 
 // Merges two subarrays of arr[].
 // First subarray is arr[l..m]
@@ -76,11 +78,15 @@ void mergeSort(int arr[], int l, int r)
 		int m = l + (r - l) / 2;
 
 		// Sort first and second halves
-		mergeSort(arr, l, m);
+		mergeSort(arr, l, m); //SE CAMBIA PARA CREAR UN THREAD O PROCESO
 		mergeSort(arr, m + 1, r);
 
 		merge(arr, l, m, r);
 	}
+}
+
+void* threadTime(void* arg) {
+  //CODE HERE
 }
 
 // UTILITY FUNCTIONS
