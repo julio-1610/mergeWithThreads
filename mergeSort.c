@@ -17,72 +17,6 @@ struct index {
 	int right;
 };
 
-struct mergeInfor {
-	int left;
-	int right;
-	int mid;
-	sem_t my_semaphore;
-};
-
-void* threadMerge(void * args){
-	struct mergeInfor data = *((struct mergeInfor*) args);
-	int l = data.left;
-	int r = data.right;
-	int m = data.mid;
-	sem_t my_semaphore = data.my_semaphore;
-
-	int i, j, k;
-	int n1 = m - l + 1;
-	int n2 = r - m;
-
-	// Create temp arrays
-	int L[n1], R[n2];
-
-	// Copy data to temp arrays
-	// L[] and R[]
-	for (i = 0; i < n1; i++)
-		L[i] = arr[l + i];
-	for (j = 0; j < n2; j++)
-		R[j] = arr[m + 1 + j];
-
-	// Merge the temp arrays back
-	// into arr[l..r]
-	// Initial index of first subarray
-	i = 0;
-
-	// Initial index of second subarray
-	j = 0;
-
-	// Initial index of merged subarray
-	k = l;
-	while (i < n1 && j < n2) {
-		if (L[i] <= R[j]) {
-			arr[k] = L[i];
-			i++;
-		} else {
-			arr[k] = R[j];
-			j++;
-		}
-		k++;
-	}
-
-	// Copy the remaining elements
-	// of L[], if there are any
-	while (i < n1) {
-		arr[k] = L[i];
-		i++;
-		k++;
-	}
-
-	// Copy the remaining elements of
-	// R[], if there are any
-	while (j < n2) {
-		arr[k] = R[j];
-		j++;
-		k++;
-	}
-}
-
 void merge(int l, int m, int r) {
 	int i, j, k;
 	int n1 = m - l + 1;
@@ -141,19 +75,10 @@ void* threadSort(void* arg) {
 	int l = data.left;
 	int r = data.right;
 
-	// creamo sun semaforo 
-	// sem_t mutex1;
-	// sem_t mutex2;
-
-	// inicializamos el semaforo con valor 1
-	// int rc1 = sem_init(&mutex1, 0, 0);
-	// int rc2 = sem_init(&mutex1, 0, 0);
-
 	if(l < r) {
 		int mid = l + (r - l)/2;
 
 		pthread_t t1, t2;
-		//pthread merge;
 
 		struct index i1;
 		i1.left = l;
@@ -165,32 +90,14 @@ void* threadSort(void* arg) {
 
 
 		pthread_create(&t1, NULL, threadSort, &i1);
-		// signal(&mutex1);
-		//sem_post(&mutex1);
 
 		pthread_create(&t2, NULL, threadSort, &i2);
-		// sem_post(&mutex2);
-
-		
-		// // llamamos para que se haga merge
-		// struct mergeInfor m1;
-		// m1.left = l;
-		// m1.right = r;
-		// m1.mid = mid;
-		// m1.my_semaphore = mutex1;
-		
-		// // 
-		// // llamamos para que se haga merge
-		// pthread_create(&merge, NULL, threadMerge, &m1);
-
 
 		pthread_join(t1, NULL);
 		pthread_join(t2, NULL);
-		//pthread_join(merge, NULL);
 
 		merge(l, mid, r);
 	}
-	//printf("l = %d, r = %d, llego al mas pequeno \n", l, r);
 }
 
 
@@ -233,69 +140,55 @@ int main() {
 	data.left = 0;
 	data.right = SIZE - 1;
 
-	// merge con hilos
 
-	// strct for time
-	struct timeval t0, t1;
-	// struct timespec start, finish;
-
-	// double elapsed;
-
-	unsigned int ut1, ut0;
-
-	printf("Pthread - Given array is \n");
+    // --------------------------------------------------------
+    struct timeval start, finish;
+    unsigned int ut0, ut1;
+	
+    printf("Pthread - Given array is \n");
 	printArray(arr, arr_size);
 
-	gettimeofday(&t0 , NULL);
-	// clock_gettime(CLOCK_MONOTONIC, &start);
-
-	pthread_create(&t, NULL, threadSort, &data);
-	// clock_gettime(CLOCK_MONOTONIC, &finish);
-
-	gettimeofday(&t1 , NULL);
+	gettimeofday(&start, NULL);
+    pthread_create(&t, NULL, threadSort, &data);
+    gettimeofday(&finish, NULL);
+    
 	pthread_join(t, NULL);
 	
-	// elapsed = (finish.tv_sec - start.tv_sec);
-	//elapsed += (finish.tv_nsec - start.tv_nsec) ;
-	
-	ut1 = t1. tv_sec *1000000+ t1. tv_usec ;
-	ut0 = t0. tv_sec *1000000+ t0. tv_usec ;
+
+    ut0 = start.tv_sec * 1000000 + start.tv_usec;
+    ut1 = finish.tv_sec * 1000000 + finish.tv_usec;
 
 	printf("\nSorted array is \n");
 	printArray(arr, arr_size);
-	printf ("%d microsegundos - hilos \n", (ut1 - ut0)) ;
+    printf("Time: %d microseconds\n", (ut1 - ut0));
 
 
-	// merge recursivo
-	// strct for time
-	// struct timespec startR, finishR;
+    // --------------------------------------------------------
+    
+    generateRandomArray();
 
-	// double elapsedR;
-
-	struct timeval t0R, t1R;
-	unsigned int ut1R, ut0R;
+    // ---------------------------------------------------------
+    
+    struct timeval start2, finish2;
+    unsigned int ut0R, ut1R;
 
 	printf("\nrecursive - Given array is \n");
 	printArray(arr, arr_size);
 	
-	gettimeofday(&t0R , NULL);
-	// clock_gettime(CLOCK_MONOTONIC, &startR);
+	gettimeofday(&start2, NULL);
+    recursiveMergeSort(0, SIZE - 1);
+    gettimeofday(&finish2, NULL);
 
-	recursiveMergeSort(0, SIZE - 1);
-	// clock_gettime(CLOCK_MONOTONIC, &finishR);
-
-	gettimeofday(&t1R , NULL);
 	pthread_join(t, NULL);
 
-	// elapsedR = (finishR.tv_sec - startR.tv_sec);
-	//elapsedR += (finishR.tv_nsec - startR.tv_nsec) ;
 
-	ut1R = t1R. tv_sec *1000000+ t1R. tv_usec ;
-	ut0R = t0R. tv_sec *1000000+ t0R. tv_usec ;
+    ut0R = start2.tv_sec * 1000000 + start2.tv_usec;
+    ut1R = finish2.tv_sec * 1000000 + finish2.tv_usec;
+
+
 
 	printf("\nSorted array is \n");
 	printArray(arr, arr_size);
-	printf (" %d microsegundos - recursivo \n", (ut1R - ut0R)) ;
-
+    printf("Time: %d microseconds\n", (ut1R - ut0R));
 	return 0;
 }
