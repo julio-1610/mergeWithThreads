@@ -4,11 +4,18 @@
 #include <time.h>
 #include <pthread.h>
 
+#define SIZE 100
 // Merges two subarrays of arr[].
 // First subarray is arr[l..m]
 // Second subarray is arr[m+1..r]
-void merge(int arr[], int l, int m, int r)
-{
+
+int arr[SIZE];
+struct index {
+	int left;
+	int right;
+};
+
+void merge(int l, int m, int r) {
 	int i, j, k;
 	int n1 = m - l + 1;
 	int n2 = r - m;
@@ -33,15 +40,11 @@ void merge(int arr[], int l, int m, int r)
 
 	// Initial index of merged subarray
 	k = l;
-	while (i < n1 && j < n2)
-	{
-		if (L[i] <= R[j])
-		{
+	while (i < n1 && j < n2) {
+		if (L[i] <= R[j]) {
 			arr[k] = L[i];
 			i++;
-		}
-		else
-		{
+		} else {
 			arr[k] = R[j];
 			j++;
 		}
@@ -58,57 +61,74 @@ void merge(int arr[], int l, int m, int r)
 
 	// Copy the remaining elements of
 	// R[], if there are any
-	while (j < n2)
-	{
+	while (j < n2) {
 		arr[k] = R[j];
 		j++;
 		k++;
 	}
 }
 
-// l is for left index and r is
-// right index of the sub-array
-// of arr to be sorted
-void mergeSort(int arr[], int l, int r)
-{
-	if (l < r)
-	{
-		// Same as (l+r)/2, but avoids
-		// overflow for large l and h
-		int m = l + (r - l) / 2;
+void* threadSort(void* arg) {
+	struct index data = *((struct index*) arg);
+	int l = data.left;
+	int r = data.right;
 
-		// Sort first and second halves
-		mergeSort(arr, l, m); //SE CAMBIA PARA CREAR UN THREAD O PROCESO
-		mergeSort(arr, m + 1, r);
+	if(l < r) {
+		int mid = l + (r - l)/2;
 
-		merge(arr, l, m, r);
+		pthread_t t1, t2;
+
+		struct index i1;
+		i1.left = l;
+		i1.right = mid;
+
+		struct index i2;
+		i2.left = mid + 1;
+		i2.right = r;
+
+		pthread_create(&t1, NULL, threadSort, &i1);
+		pthread_create(&t2, NULL, threadSort, &i2);
+
+		pthread_join(t1, NULL);
+		pthread_join(t2, NULL);
+
+		merge(l, mid, r);
 	}
 }
 
+
 void* threadTime(void* arg) {
-  //CODE HERE
+	//CODE HERE
 }
 
 // UTILITY FUNCTIONS
 // Function to print an array
-void printArray(int A[], int size)
-{
+void printArray(int A[], int size) {
 	int i;
 	for (i = 0; i < size; i++)
 		printf("%d ", A[i]);
 	printf("\n");
 }
 
+void generateRandomArray() {
+	for(int i = 0; i < SIZE; i++) 
+		arr[i] = rand() % 100; //Números alaeatorios de 0 a 100
+}
+
 // Driver code
-int main()
-{
-	int arr[] = {12, 11, 13, 5, 6, 7};
+int main() {
+	pthread_t t;
+	generateRandomArray();
 	int arr_size = sizeof(arr) / sizeof(arr[0]);
+	struct index data;
+	data.left = 0;
+	data.right = SIZE - 1;
 
 	printf("Given array is \n");
 	printArray(arr, arr_size);
 
-	mergeSort(arr, 0, arr_size - 1);
+	pthread_create(&t, NULL, threadSort, &data);
+	pthread_join(t, NULL);
 
 	printf("\nSorted array is \n");
 	printArray(arr, arr_size);
