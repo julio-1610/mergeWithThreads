@@ -6,7 +6,7 @@
 #include <semaphore.h> 
 # include <time.h>
 
-#define SIZE 100
+#define SIZE 1000
 // Merges two subarrays of arr[].
 // First subarray is arr[l..m]
 // Second subarray is arr[m+1..r]
@@ -140,13 +140,14 @@ int main() {
 	data.left = 0;
 	data.right = SIZE - 1;
 
+    printf("Size of array: %d \n", SIZE);
 
     // --------------------------------------------------------
     struct timeval start, finish;
     unsigned int ut0, ut1;
 	
-    printf("Pthread - Given array is \n");
-	printArray(arr, arr_size);
+    //printf("Pthread - Given array is \n");
+	//printArray(arr, arr_size);
 
 	gettimeofday(&start, NULL);
     pthread_create(&t, NULL, threadSort, &data);
@@ -158,9 +159,9 @@ int main() {
     ut0 = start.tv_sec * 1000000 + start.tv_usec;
     ut1 = finish.tv_sec * 1000000 + finish.tv_usec;
 
-	printf("\nSorted array is \n");
-	printArray(arr, arr_size);
-    printf("Time: %d microseconds\n", (ut1 - ut0));
+	//printf("\nSorted array is \n");
+	//printArray(arr, arr_size);
+    printf("Time: %d microseconds - hilos\n", (ut1 - ut0));
 
 
     // --------------------------------------------------------
@@ -172,14 +173,14 @@ int main() {
     struct timeval start2, finish2;
     unsigned int ut0R, ut1R;
 
-	printf("\nrecursive - Given array is \n");
-	printArray(arr, arr_size);
+	//printf("\nrecursive - Given array is \n");
+	//printArray(arr, arr_size);
 	
 	gettimeofday(&start2, NULL);
     recursiveMergeSort(0, SIZE - 1);
     gettimeofday(&finish2, NULL);
 
-	pthread_join(t, NULL);
+	//pthread_join(t, NULL);
 
 
     ut0R = start2.tv_sec * 1000000 + start2.tv_usec;
@@ -187,8 +188,8 @@ int main() {
 
 
 
-	printf("\nSorted array is \n");
-	printArray(arr, arr_size);
-    printf("Time: %d microseconds\n", (ut1R - ut0R));
+	//printf("\nSorted array is \n");
+	//printArray(arr, arr_size);
+    printf("Time: %d microseconds - recursivo\n", (ut1R - ut0R));
 	return 0;
 }
