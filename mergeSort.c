@@ -122,7 +122,6 @@ void generateRandomArray() {
 void recursiveMergeSort(int l, int r) {
 	if(l < r) {
 		int mid = l + (r - l)/2;
-		//printf("l = %d, m =  %d, r = %d \n", l,mid, r);
 
 		recursiveMergeSort(l, mid);
 		recursiveMergeSort(mid + 1, r);
@@ -146,8 +145,7 @@ int main() {
     struct timeval start, finish;
     unsigned int ut0, ut1;
 	
-    //printf("Pthread - Given array is \n");
-	//printArray(arr, arr_size);
+
 
 	gettimeofday(&start, NULL);
     pthread_create(&t, NULL, threadSort, &data);
@@ -159,8 +157,6 @@ int main() {
     ut0 = start.tv_sec * 1000000 + start.tv_usec;
     ut1 = finish.tv_sec * 1000000 + finish.tv_usec;
 
-	//printf("\nSorted array is \n");
-	//printArray(arr, arr_size);
     printf("Time: %d microseconds - hilos\n", (ut1 - ut0));
 
 
@@ -173,23 +169,16 @@ int main() {
     struct timeval start2, finish2;
     unsigned int ut0R, ut1R;
 
-	//printf("\nrecursive - Given array is \n");
-	//printArray(arr, arr_size);
 	
 	gettimeofday(&start2, NULL);
     recursiveMergeSort(0, SIZE - 1);
     gettimeofday(&finish2, NULL);
-
-	//pthread_join(t, NULL);
 
 
     ut0R = start2.tv_sec * 1000000 + start2.tv_usec;
     ut1R = finish2.tv_sec * 1000000 + finish2.tv_usec;
 
 
-
-	//printf("\nSorted array is \n");
-	//printArray(arr, arr_size);
     printf("Time: %d microseconds - recursivo\n", (ut1R - ut0R));
 	return 0;
 }
